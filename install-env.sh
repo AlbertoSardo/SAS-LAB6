@@ -40,15 +40,18 @@ sudo npm install pm2 -g
 ####################################################################
 # Note - change "hajek.git" to be your private repo name (hawk ID) #
 ####################################################################
-sudo -u ubuntu git clone git@github.com:jhajek/coursera-cloud-computing.git
+cd /home/ubuntu
+sudo -u ubuntu git clone https://github.com/AlbertoSardo/SAS-LAB6.git
 
 # Start the nodejs app where it is located via PM2
 # https://pm2.keymetrics.io/docs/usage/quick-start
-cd /home/ubuntu/coursera-cloud-computing/itmo-463-563/M6L8
+cd /home/ubuntu/SAS-LAB6
 
-sudo cp /home/ubuntu/coursera-cloud-computing/itmo-463-563/M6L8/default /etc/nginx/sites-available/default
+sudo cp ./default /etc/nginx/sites-available/default
 sudo systemctl daemon-reload
 sudo systemctl restart nginx
 
-sudo pm2 start app.js
+sudo -u ubuntu pm2 start app.js
+sudo -u ubuntu pm2 save
+sudo systemctl enable nginx
 

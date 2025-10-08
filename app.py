@@ -1,5 +1,4 @@
 import boto3
-import mysql.connector
 from io import BytesIO
 from PIL import Image
 import logging
@@ -11,19 +10,19 @@ from urllib.parse import urlparse
 messagesInQueue = False
 
 # https://stackoverflow.com/questions/40377662/boto3-client-noregionerror-you-must-specify-a-region-error-only-sometimes
-region = 'us-east-2'
+region = 'eu-south-1'
 
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html
 clientSQS = boto3.client('sqs',region_name=region)
-clientrds = boto3.client('rds',region_name=region)
 clientSNS = boto3.client('sns',region_name=region)
+clientDynamo = boto3.client('dynamodb', region_name=region)
 # https://github.com/boto/boto3/issues/1644
 # Needed to help generate pre-signed URLs
 clientS3 = boto3.client('s3', region_name=region,config=Config(s3={'addressing_style': 'path'}, signature_version='s3v4') )
 
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html
 print("Getting a list of DynamoDB Tables...")
-
+responseDynamoTables = clientDynamo.list_tables()
 
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/list_queues.html
 print("Getting a list of SQS queues...")
@@ -184,6 +183,13 @@ if messagesInQueue == True:
     #############################################################################
     # Add code to update the RAWS3URL to have the value: done after the image is processed
     #############################################################################
+
+    clientDynamo.update_item(
+    TableName=responseDynamoTables['TableNames'][0],
+    Key={'RecordNumber': {'S': responseMessages['Messages'][0]['Body']}},
+    UpdateExpression="SET RAWS3URL = :done",
+    ExpressionAttributeValues={":done": {"S": "done"}}
+    )
 
 
 

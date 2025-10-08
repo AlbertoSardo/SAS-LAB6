@@ -18,5 +18,5 @@ region                 = "eu-south-1"
 raw-s3-bucket          = "albi-module-06-raw-12345"
 finished-s3-bucket     = "albi-module-06-finished-12345"
 sqs-name               = "jrh-sqs"
-dynamodb-name          = 
+dynamodb-name          = "company"
 

@@ -8,8 +8,16 @@ const {
   S3Client, 
   ListBucketsCommand, 
   ListObjectsCommand, 
-  GetObjectCommand 
+  GetObjectCommand
 } = require('@aws-sdk/client-s3');
+
+const {
+  DynamoDBClient,
+  ListTablesCommand,
+  ScanCommand,
+  PutItemCommand,
+  QueryCommand
+} = require('@aws-sdk/client-dynamodb');
 
 const {
   SNSClient,
@@ -34,7 +42,7 @@ var ip = require('ip');
 //////////////////////////////////////////////////////////////////////////////
 // Change this to match YOUR default REGION
 //////////////////////////////////////////////////////////////////////////////
-const REGION = "us-east-2"; //e.g. "us-east-1";
+const REGION = "eu-south-1";
 const s3 = new S3Client({ region: REGION });
 ///////////////////////////////////////////////////////////////////////////
 // I hardcoded my S3 bucket name, this you need to determine dynamically

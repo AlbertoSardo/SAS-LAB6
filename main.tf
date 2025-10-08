@@ -235,6 +235,21 @@ resource "aws_iam_role_policy" "sqs_fullaccess_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "dynamodb_fullaccess_policy" {
+  name = "dynamodb_fullaccess_policy"
+  role = aws_iam_role.role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["dynamodb:*"]
+      Resource = "*"
+    }]
+  })
+}
+
+
 # creating a private IPv4 subnet per AZ
 # https://stackoverflow.com/questions/63991120/automatically-create-a-subnet-for-each-aws-availability-zone-in-terraform
 # https://stackoverflow.com/questions/26706683/ec2-t2-micro-instance-has-no-public-dns
@@ -548,6 +563,12 @@ resource "aws_dynamodb_table" "coursera-dynamodb-table" {
   read_capacity  = 20
   write_capacity = 20
   # Add hash key of type String and the RecordNumber attribute
+  hash_key = "RecordNumber"
+
+  attribute {
+    name = "RecordNumber"
+    type = "S"
+  }
 
   # This will be the UUID and how we uniquely identify records
 
