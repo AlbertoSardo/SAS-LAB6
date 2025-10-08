@@ -1,57 +1,51 @@
-#!/bin/bash
+# 0) Base packages (git, curl, nginx, dos2unix)
+sudo apt-get update -y
+sudo apt-get install -y git curl ca-certificates gnupg nginx dos2unix
 
-# Install dependecies here:
+# 1) Convert CRLF -> LF across your working dir (adjust path if needed)
+# If your script is already on the instance:
+dos2unix install-env.sh 2>/dev/null || true
+# If you've copied other files too, normalize all of them:
+# find . -type f -exec dos2unix {} \; 2>/dev/null || true
 
-##############################################################################
-# Installing Nginx
-##############################################################################
-sudo apt update -y
-sudo apt install nginx unzip -y
-
-##############################################################################
-# Enable and start Nginx service
-##############################################################################
-sudo systemctl enable nginx
-sudo systemctl start nginx
-
-##############################################################################
-# Install Node JS
-# https://github.com/nodesource/distributions#installation-instructions-deb
-##############################################################################
-curl -fsSL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
-sudo bash nodesource_setup.sh
-sudo apt install -y nodejs
+# 2) Install Node.js properly (NodeSource; works on Ubuntu 22.04)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
 node -v
-##############################################################################
-# Use NPM (node package manager to install AWS JavaScript SDK)
-##############################################################################
-# Run NPM to install the NPM Node packages needed for the code
-# You will start this NodeJS script by executing the command: node app.js
-# from the directory where app.js is located. The program `pm2` can be
-# used to auto start NodeJS applications (as they don't have a normal
-# systemd service handler).
-# <https://pm2.keymetrics.io/docs/usage/quick-start/>. This will require
-# the install of PM2 via npm as well.
-cd /home/ubuntu
-sudo -u ubuntu npm install @aws-sdk/client-sqs @aws-sdk/client-s3 @aws-sdk/client-sns @aws-sdk/client-dynamodb express multer multer-s3 uuid ip
-sudo npm install pm2 -g
+npm -v
 
-# Command to clone your private repo via SSH usign the Private key
-####################################################################
-# Note - change "hajek.git" to be your private repo name (hawk ID) #
-####################################################################
-cd /home/ubuntu
-sudo -u ubuntu git clone https://github.com/AlbertoSardo/SAS-LAB6.git
+# 3) PM2 for Node apps
+sudo npm i -g pm2
 
-# Start the nodejs app where it is located via PM2
-# https://pm2.keymetrics.io/docs/usage/quick-start
-cd /home/ubuntu/SAS-LAB6
+# 4) Clean any broken clone attempts and re-clone your repo (no '?/' at the end!)
+cd /home/ubuntu || cd ~
+sudo rm -rf SAS-LAB6
+git clone https://github.com/AlbertoSardo/SAS-LAB6.git
+cd SAS-LAB6
 
-sudo cp ./default /etc/nginx/sites-available/default
-sudo systemctl daemon-reload
-sudo systemctl restart nginx
+# 5) Make sure all text files are LF (prevents systemd/nginx issues)
+find . -type f -exec dos2unix {} \; 2>/dev/null || true
 
-sudo -u ubuntu pm2 start app.js
-sudo -u ubuntu pm2 save
-sudo systemctl enable nginx
+# 6) Install frontend deps (if package.json exists)
+if [ -f package.json ]; then
+  npm install
+  # ensure DynamoDB client exists
+  npm ls @aws-sdk/client-dynamodb >/dev/null 2>&1 || npm i @aws-sdk/client-dynamodb
+fi
+
+# 7) Put your nginx site config in place (requires that ./default exists in repo)
+if [ -f ./default ]; then
+  sudo cp ./default /etc/nginx/sites-available/default
+  sudo systemctl daemon-reload
+  sudo systemctl restart nginx
+  sudo systemctl enable nginx
+fi
+
+# 8) Start the app (ensure app.js exists at repo root)
+if [ -f ./app.js ]; then
+  pm2 start ./app.js --name module-06
+  pm2 save
+else
+  echo "ERROR: app.js not found at /home/ubuntu/SAS-LAB6/app.js"
+fi
 
