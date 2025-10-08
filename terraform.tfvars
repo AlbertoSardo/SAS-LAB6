@@ -2,9 +2,9 @@
 # Use the AMI of the custom Ec2 image you previously created
 imageid                = "ami-021769d848635b6f4"
 # Use t2.micro for the AWS Free Tier
-instance-type          = "t2.micro"
-key-name               = "coursera-key"
-vpc_security_group_ids = "sg-0fafd233da91b97bd"
+instance-type          = "t3.micro"
+key-name               = "module-02-key"
+vpc_security_group_ids = "sg-04956b65"
 tag-name               = "module-06"
 user-sns-topic         = "jrh-updates"
 elb-name               = "jrh-elb"
@@ -14,8 +14,8 @@ desired                = 3
 min                    = 2
 max                    = 5
 number-of-azs          = 3
-region                 = "us-east-2"
-raw-s3-bucket          = "jrh-raw-bucket"
-finished-s3-bucket     = "jrh-finished-bucket"
+region                 = "eu-south-1"
+raw-s3-bucket          = "albi-module-06-raw-12345"
+finished-s3-bucket     = "albi-module-06-finished-12345"
 sqs-name               = "jrh-sqs"
 
