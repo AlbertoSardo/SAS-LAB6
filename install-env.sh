@@ -33,7 +33,7 @@ node -v
 # <https://pm2.keymetrics.io/docs/usage/quick-start/>. This will require
 # the install of PM2 via npm as well.
 cd /home/ubuntu
-sudo -u ubuntu npm install @aws-sdk/client-sqs @aws-sdk/client-s3 @aws-sdk/client-sns express multer multer-s3 uuid ip
+sudo -u ubuntu npm install @aws-sdk/client-sqs @aws-sdk/client-s3 @aws-sdk/client-sns @AWS-SDK/client-dynamodb express multer multer-s3 uuid ip
 sudo npm install pm2 -g
 
 # Command to clone your private repo via SSH usign the Private key
