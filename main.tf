@@ -585,19 +585,16 @@ resource "aws_dynamodb_table" "coursera-dynamodb-table" {
 ##############################################################################
 
 resource "aws_dynamodb_table_item" "insert-sample-record" {
-  depends_on = [aws_dynamodb_table.coursera-dynamodb-table]
-  table_name = aws_dynamodb_table.coursera-dynamodb-table.name
-  hash_key   = aws_dynamodb_table.coursera-dynamodb-table.hash_key
+  table_name = aws_dynamodb_table.company.name
+  # if your table has both a hash and range key, set both:
+  hash_key   = aws_dynamodb_table.company.hash_key
+  range_key  = aws_dynamodb_table.company.range_key
 
-  item = <<ITEM
-{
-  "Email": {"S": ""},
-  "RecordNumber": {"S": ""},
-  "CustomerName": {"S": ""},
-  "Phone": {"S": ""},
-  "Stat": {"N": ""},
-  "RAWS3URL": {"S": ""},
-  "FINSIHEDS3URL": {"S": ""}
-}
-ITEM
+  item = jsonencode({
+    id        = { S    = "1" }          # String
+    name      = { S    = "Acme Corp" }  # String
+    employees = { N    = "42" }         # Number MUST be a numeric string
+    active    = { BOOL = true }         # Boolean (no quotes)
+    # add other attributes as needed, matching their types
+  })
 }
